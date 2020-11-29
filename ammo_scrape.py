@@ -12,6 +12,7 @@ items = soup.find_all('div', class_='product-item-details')
 max_investment = 460
 
 print(banner)
+print("___________________________________________")
 nine_mm = 59.95
 
 for each in items:
@@ -27,7 +28,7 @@ for each in items:
     box_cost = buy_after_tax/num_boxes
 
     if buy_after_tax < max_investment:
-        print(title)
+        print(f'*{title.lstrip()}*')
         print(rounds)
         print(price)
         print('')
@@ -40,3 +41,4 @@ for each in items:
               f'That is a SGP of ${59.95-box_cost:.2f} per 50 Round box.\n'
               f'${(59.95-box_cost)/50:.2f} SGP per Round.\n'
               f'Our Total SGP for this item would be ${(nine_mm * num_boxes)-buy_after_tax:.2f}')
+        print("___________________________________________")
