@@ -2,6 +2,11 @@ import requests
 from bs4 import BeautifulSoup
 
 
+MAX_INVESTMENT = 1000
+# TODO: Change to decimal
+SALE_PRICE_9MM = 59.95
+
+
 def get_9mm_content():
     url = "https://www.ammunitiondepot.com/603-bulk-9mm-ammo"
     response = requests.get(url)
@@ -9,15 +14,13 @@ def get_9mm_content():
 
 
 def main():
-    soup = BeautifulSoup(get_9mm_content(), "html.parser")
-
+    html = get_9mm_content()
+    soup = BeautifulSoup(html, "html.parser")
     banner = soup.find('span', class_='base').text
     items = soup.find_all('div', class_='product-item-details')
-    max_investment = 1000
 
     print(banner)
     print("___________________________________________")
-    nine_mm = 59.95
 
     for each in items:
         title = each.a.text
@@ -31,7 +34,7 @@ def main():
         buy_after_tax = (flt * .0825) + flt
         box_cost = buy_after_tax/num_boxes
 
-        if buy_after_tax < max_investment:
+        if buy_after_tax < MAX_INVESTMENT:
             print(f'*{title.lstrip()}*')
             print(rounds)
             print(price)
@@ -44,7 +47,7 @@ def main():
                   f'We get ${box_cost:.2f}/Box of Ammo\n'
                   f'That is a SGP of ${59.95-box_cost:.2f} per 50 Round box.\n'
                   f'${(59.95-box_cost)/50:.2f} SGP per Round.\n'
-                  f'Our Total SGP for this item would be ${(nine_mm * num_boxes)-buy_after_tax:.2f}')
+                  f'Our Total SGP for this item would be ${(SALE_PRICE_9MM * num_boxes) - buy_after_tax:.2f}')
             print("___________________________________________")
 
 
