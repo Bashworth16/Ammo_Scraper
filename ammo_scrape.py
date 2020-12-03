@@ -2,12 +2,14 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def main():
+def get_9mm_content():
     url = "https://www.ammunitiondepot.com/603-bulk-9mm-ammo"
-
     response = requests.get(url)
+    return response.content
 
-    soup = BeautifulSoup(response.content, "html.parser")
+
+def main():
+    soup = BeautifulSoup(get_9mm_content(), "html.parser")
 
     banner = soup.find('span', class_='base').text
     items = soup.find_all('div', class_='product-item-details')
