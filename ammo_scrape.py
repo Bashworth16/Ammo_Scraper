@@ -5,11 +5,11 @@ url = "https://www.ammunitiondepot.com/603-bulk-9mm-ammo"
 
 response = requests.get(url)
 
-soup = BeautifulSoup(response.content, "lxml")
+soup = BeautifulSoup(response.content, "html.parser")
 
 banner = soup.find('span', class_='base').text
 items = soup.find_all('div', class_='product-item-details')
-max_investment = 460
+max_investment = 1000
 
 print(banner)
 print("___________________________________________")
