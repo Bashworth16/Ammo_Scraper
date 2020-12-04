@@ -25,36 +25,42 @@ def parse_banner(x):
     print(Ammos.banner)
 
 
-def parse_ammos():
-    pass
+def parse_ammos(e):
+    Ammos.title = e.a.text
+    print(f'*{Ammos.title.lstrip()}*')
+
+
+def mute_rounds(r):
+    Ammos.rounds = r.find('span', class_='rounds-qty').text
+    return int(Ammos.rounds[:-6])
+
+
+def print_rounds(e):
+    Ammos.rounds = e.find('span', class_='rounds-qty').text
+    print(Ammos.rounds)
 
 
 def main():
     html = get_9mm_content()
     soup = BeautifulSoup(html, "html.parser")
     parse_banner(soup)
-
-
     items = soup.find_all('div', class_='product-item-details')
-
-
     print("___________________________________________")
 
+
     for each in items:
-        Ammos.title = each.a.text
-        Ammos.rounds = each.find('span', class_='rounds-qty').text
-        num_rounds = int(Ammos.rounds[:-6])
+        num_rounds = mute_rounds(each)
         num_boxes = round(num_rounds/50)
         price = each.find('span', class_='price').text
+
         price_num = price[1:]
         flt = float(price_num)
-
         buy_after_tax = (flt * .0825) + flt
         box_cost = buy_after_tax/num_boxes
 
         if buy_after_tax < MAX_INVESTMENT:
-            print(f'*{Ammos.title.lstrip()}*')
-            print(Ammos.rounds)
+            parse_ammos(each)
+            print_rounds(each)
             print(price)
             print('')
             print(f'This order has {num_rounds} rounds. \n'
