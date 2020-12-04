@@ -52,6 +52,27 @@ def mute_rounds(r):
     Ammos.rounds = r.find('span', class_='rounds-qty').text
     return int(Ammos.rounds[:-6])
 
+def profit_cal(c, e):
+    num_rounds = mute_rounds(e)
+    num_boxes = round(num_rounds / 50)
+    bat = mute_price(e)
+    box_cost = bat / num_boxes
+    if bat < MAX_INVESTMENT:
+        print(f'{c}. {parse_ammos(e)}')
+        print_rounds(e)
+        print_price(e)
+        print('')
+        print(f'This order has {num_rounds} rounds. \n'
+              f'That is a total of {num_boxes} boxes of 50 cartridges.\n'
+              f'Your total investment on this item after is ${bat:.2f}\n'
+              f'If we divide your investment({bat:.2f}) by the number of boxes({num_boxes})\n'
+              f'...\n'
+              f'We get ${box_cost:.2f}/Box of Ammo\n'
+              f'That is a SGP of ${59.95 - box_cost:.2f} per 50 Round box.\n'
+              f'${(59.95 - box_cost) / 50:.2f} SGP per Round.\n'
+              f'Our Total SGP for this item would be ${(SALE_PRICE_9MM * num_boxes) - bat:.2f}')
+        print("___________________________________________")
+
 
 def main():
     number = 1
@@ -61,26 +82,8 @@ def main():
     items = soup.find_all('div', class_='product-item-details')
     print("___________________________________________")
     for each in items:
-        num_rounds = mute_rounds(each)
-        num_boxes = round(num_rounds/50)
-        bat = mute_price(each)
-        box_cost = bat / num_boxes
-        if bat < MAX_INVESTMENT:
-            print(f'{number}. {parse_ammos(each)}')
-            print_rounds(each)
-            print_price(each)
-            print('')
-            print(f'This order has {num_rounds} rounds. \n'
-                  f'That is a total of {num_boxes} boxes of 50 cartridges.\n'
-                  f'Your total investment on this item after is ${bat:.2f}\n'
-                  f'If we divide your investment({bat:.2f}) by the number of boxes({num_boxes})\n'
-                  f'...\n'
-                  f'We get ${box_cost:.2f}/Box of Ammo\n'
-                  f'That is a SGP of ${59.95-box_cost:.2f} per 50 Round box.\n'
-                  f'${(59.95-box_cost)/50:.2f} SGP per Round.\n'
-                  f'Our Total SGP for this item would be ${(SALE_PRICE_9MM * num_boxes) - bat:.2f}')
-            print("___________________________________________")
-            number = number + 1
+        profit_cal(number, each)
+        number += 1
 
 
 if __name__ == "__main__":
