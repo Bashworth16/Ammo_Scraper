@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -13,19 +15,35 @@ def get_9mm_content():
     return response.content
 
 
+Ammos = namedtuple('Ammos', 'banner title rounds price ')
+
+# Return a list of
+
+
+def parse_banner(x):
+    Ammos.banner = x.find('span', class_='base').text
+    print(Ammos.banner)
+
+
+def parse_ammos():
+    pass
+
+
 def main():
     html = get_9mm_content()
     soup = BeautifulSoup(html, "html.parser")
-    banner = soup.find('span', class_='base').text
+    parse_banner(soup)
+
+
     items = soup.find_all('div', class_='product-item-details')
 
-    print(banner)
+
     print("___________________________________________")
 
     for each in items:
-        title = each.a.text
-        rounds = each.find('span', class_='rounds-qty').text
-        num_rounds = int(rounds[:-6])
+        Ammos.title = each.a.text
+        Ammos.rounds = each.find('span', class_='rounds-qty').text
+        num_rounds = int(Ammos.rounds[:-6])
         num_boxes = round(num_rounds/50)
         price = each.find('span', class_='price').text
         price_num = price[1:]
@@ -35,8 +53,8 @@ def main():
         box_cost = buy_after_tax/num_boxes
 
         if buy_after_tax < MAX_INVESTMENT:
-            print(f'*{title.lstrip()}*')
-            print(rounds)
+            print(f'*{Ammos.title.lstrip()}*')
+            print(Ammos.rounds)
             print(price)
             print('')
             print(f'This order has {num_rounds} rounds. \n'
