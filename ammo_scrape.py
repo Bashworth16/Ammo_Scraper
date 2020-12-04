@@ -27,12 +27,7 @@ def parse_banner(x):
 
 def parse_ammos(e):
     Ammos.title = e.a.text
-    print(f'*{Ammos.title.lstrip()}*')
-
-
-def mute_rounds(r):
-    Ammos.rounds = r.find('span', class_='rounds-qty').text
-    return int(Ammos.rounds[:-6])
+    return Ammos.title.lstrip()
 
 
 def print_rounds(e):
@@ -40,39 +35,52 @@ def print_rounds(e):
     print(Ammos.rounds)
 
 
+def print_price(e):
+    price = e.find('span', class_='price').text
+    print(price)
+
+
+def mute_price(e):
+    price = e.find('span', class_='price').text
+    price_num = price[1:]
+    flt = float(price_num)
+    buy_after_tax = (flt * .0825) + flt
+    return buy_after_tax
+
+
+def mute_rounds(r):
+    Ammos.rounds = r.find('span', class_='rounds-qty').text
+    return int(Ammos.rounds[:-6])
+
+
 def main():
+    number = 1
     html = get_9mm_content()
     soup = BeautifulSoup(html, "html.parser")
     parse_banner(soup)
     items = soup.find_all('div', class_='product-item-details')
     print("___________________________________________")
-
-
     for each in items:
         num_rounds = mute_rounds(each)
         num_boxes = round(num_rounds/50)
-        price = each.find('span', class_='price').text
-
-        price_num = price[1:]
-        flt = float(price_num)
-        buy_after_tax = (flt * .0825) + flt
-        box_cost = buy_after_tax/num_boxes
-
-        if buy_after_tax < MAX_INVESTMENT:
-            parse_ammos(each)
+        bat = mute_price(each)
+        box_cost = bat / num_boxes
+        if bat < MAX_INVESTMENT:
+            print(f'{number}. {parse_ammos(each)}')
             print_rounds(each)
-            print(price)
+            print_price(each)
             print('')
             print(f'This order has {num_rounds} rounds. \n'
                   f'That is a total of {num_boxes} boxes of 50 cartridges.\n'
-                  f'Your total investment on this item after is ${buy_after_tax:.2f}\n'
-                  f'If we divide your investment({buy_after_tax:.2f}) by the number of boxes({num_boxes})\n'
+                  f'Your total investment on this item after is ${bat:.2f}\n'
+                  f'If we divide your investment({bat:.2f}) by the number of boxes({num_boxes})\n'
                   f'...\n'
                   f'We get ${box_cost:.2f}/Box of Ammo\n'
                   f'That is a SGP of ${59.95-box_cost:.2f} per 50 Round box.\n'
                   f'${(59.95-box_cost)/50:.2f} SGP per Round.\n'
-                  f'Our Total SGP for this item would be ${(SALE_PRICE_9MM * num_boxes) - buy_after_tax:.2f}')
+                  f'Our Total SGP for this item would be ${(SALE_PRICE_9MM * num_boxes) - bat:.2f}')
             print("___________________________________________")
+            number = number + 1
 
 
 if __name__ == "__main__":
