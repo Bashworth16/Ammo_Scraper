@@ -1,5 +1,5 @@
 from collections import namedtuple
-
+from typing import List
 import requests
 from bs4 import BeautifulSoup
 
@@ -9,44 +9,39 @@ MAX_INVESTMENT = 1000
 SALE_PRICE_9MM = 59.95
 
 
-def get_9mm_content():
+def fetch_html() -> bytes:
     url = "https://www.ammunitiondepot.com/603-bulk-9mm-ammo"
     response = requests.get(url)
     return response.content
 
 
-Ammos = namedtuple('Ammos', 'banner title rounds price ')
-
-# Return a list of
+Ammo = namedtuple('Ammos', 'title rounds price')
 
 
-def parse_banner(x):
-    Ammos.banner = x.find('span', class_='base').text
-    print(Ammos.banner)
+def parse_ammos(h: bytes) -> List[Ammo]:
+    soup = BeautifulSoup(h, "html.parser")
+    ammos = []
+    # banner = soup.find('span', class_='base').text
+    title = soup.find("a", class_="product-item-link").text.lstrip()
+    round = soup.find('span', class_='rounds-qty').text
+    price = soup.find('span', class_='price').text
+    items = soup.find_all('div', class_='product-item-details')
+    for each in items:
+        unit = Ammo(title=title, rounds=round, price=price)
+        ammos.append(unit)
+    return ammos
 
+def render_ammos(ammos: List[Ammo]) -> str:
+    item_number = 0
+    for each in ammos:
+        price_num = each.price[1:]
+        flt = float(price_num)
+        buy_after_tax = (flt * .0825) + flt
+        print(item_number, buy_after_tax)
+        item_number += 1
 
-def parse_ammos(e):
-    Ammos.title = e.a.text
-    return Ammos.title.lstrip()
-
-
-def print_rounds(e):
-    Ammos.rounds = e.find('span', class_='rounds-qty').text
-    print(Ammos.rounds)
-
-
-def print_price(e):
-    price = e.find('span', class_='price').text
-    print(price)
-
-
-def mute_price(e):
-    price = e.find('span', class_='price').text
-    price_num = price[1:]
-    flt = float(price_num)
-    buy_after_tax = (flt * .0825) + flt
-    return buy_after_tax
-
+print(parse_ammos(fetch_html()))
+print(render_ammos(parse_ammos(fetch_html())))
 
 def mute_rounds(r):
     Ammos.rounds = r.find('span', class_='rounds-qty').text
@@ -77,13 +72,19 @@ def profit_cal(c, e):
 def main():
     number = 1
     html = get_9mm_content()
-    soup = BeautifulSoup(html, "html.parser")
+
     parse_banner(soup)
-    items = soup.find_all('div', class_='product-item-details')
+
     print("___________________________________________")
     for each in items:
         profit_cal(number, each)
         number += 1
+
+# def main():
+#     html = get_9mm_content()
+#     ammos = parse_ammos(html)
+#     rendered = render_ammos(ammos)
+#    print(rendered)
 
 
 if __name__ == "__main__":
