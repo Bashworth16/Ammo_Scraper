@@ -11,14 +11,15 @@ USE_FIXTURE = True
 
 
 def main():
-    html = fetch_html()
+    html = fetch_html(USE_FIXTURE)
     ammos = parse_ammos(html)
     rendered = render_ammos(ammos)
     print(rendered)
 
 
-def fetch_html() -> bytes:
-    if USE_FIXTURE:
+def fetch_html(x) -> bytes:
+    use_fixture = x
+    if use_fixture:
         with open("fixtures/9mm.html", "br") as f:
             return f.read()
     else:
