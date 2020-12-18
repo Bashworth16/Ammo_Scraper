@@ -1,7 +1,7 @@
-from collections import namedtuple
 from decimal import Decimal
-from typing import List
+from typing import List, NamedTuple
 
+import textwrap
 import requests
 from bs4 import BeautifulSoup
 
@@ -27,7 +27,12 @@ def fetch_html(use_fixture) -> bytes:
         return response.content
 
 
-Ammo = namedtuple('Ammo', 'title rounds price')
+# Ammo = namedtuple('Ammo', 'title rounds price')
+
+class Ammo(NamedTuple):
+    title: str
+    rounds: int
+    price: Decimal
 
 
 def parse_ammos(h: bytes) -> List[Ammo]:
@@ -37,7 +42,7 @@ def parse_ammos(h: bytes) -> List[Ammo]:
 
     items = soup.find_all('div', class_='product-item-details')
     for item in items:
-        title = item.find("a", class_="product-item-link").text.lstrip()
+        title = item.find("a", class_="product-item-link").text
         r = item.find('span', class_='rounds-qty').text
         price = item.find('span', class_='price').text
         unit = Ammo(title=title.strip(), rounds=parse_rounds(r), price=parse_price(price))
@@ -50,7 +55,7 @@ def parse_rounds(rounds: str) -> int:
 
 
 def parse_price(price: str) -> Decimal:
-    return Decimal(price[1:])
+    return round(Decimal(price[1:]), 2)
 
 
 def get_boxes(ammo: Ammo) -> int:
@@ -58,36 +63,37 @@ def get_boxes(ammo: Ammo) -> int:
 
 
 def price_per_box(ammo: Ammo) -> Decimal:
-    return Decimal(after_tax(ammo) / get_boxes(ammo))
+    return round(Decimal(after_tax(ammo) / get_boxes(ammo)), 2)
 
 
 def after_tax(ammo: Ammo) -> Decimal:
-    return ammo.price * Decimal("1.0825")
+    return round(Decimal(ammo.price * Decimal("1.0825")), 2)
 
 
 def sales_gross_profit_per_box(ammo: Ammo) -> Decimal:
-    return SALE_PRICE_9MM - price_per_box(ammo)
+    return round((SALE_PRICE_9MM - price_per_box(ammo)), 2)
 
 
 def get_sgp_round(ammo: Ammo) -> Decimal:
-    return (SALE_PRICE_9MM - price_per_box(ammo)) / 50
+    return round(Decimal((SALE_PRICE_9MM - price_per_box(ammo)) / 50), 2)
 
 
 def render_ammo(ammo: Ammo) -> str:
-    header = f'{ammo.title}"\n"{ammo.rounds}"\n"${ammo.price}'
-    return (
-        f'{header} \n'
-        f'This order has {ammo.rounds} rounds. \n'
-        f'That is a total of {get_boxes(ammo)} boxes of 50 cartridges.\n'
-        f'Your total investment on this item after is ${after_tax(ammo):.2f}\n'
-        f'If we divide your investment({after_tax(ammo):.2f}) by the number of boxes({get_boxes(ammo)})\n'
-        f'...\n'
-        f'We get ${price_per_box(ammo):.2f}/Box of Ammo\n'
-        f'That is a SGP of ${sales_gross_profit_per_box(ammo):.2f} per 50 Round box.\n'
-        f'${get_sgp_round(ammo):.2f} SGP per Round.\n'
-        f'Our Total SGP for this item would be ${(SALE_PRICE_9MM * get_boxes(ammo)) - after_tax(ammo):.2f}\n'
-        f'___________________________________________'
-    )
+    return textwrap.dedent(f"""
+        {ammo.title}
+        {ammo.rounds}
+        ${ammo.price}
+        This order has {ammo.rounds} rounds.
+        That is a total of {get_boxes(ammo)} boxes of 50 cartridges.
+        Your total investment on this item after is ${after_tax(ammo)}
+        If we divide your investment({after_tax(ammo)}) by the number of boxes({get_boxes(ammo)})
+        ...
+        We get ${price_per_box(ammo)}/Box of Ammo
+        That is a SGP of ${sales_gross_profit_per_box(ammo)} per 50 Round box.
+        ${get_sgp_round(ammo)} SGP per Round.
+        Our Total SGP for this item would be ${(SALE_PRICE_9MM * get_boxes(ammo)) - after_tax(ammo)}
+        ___________________________________________
+    """).strip()
 
 
 def render_ammos(ammos: List[Ammo]) -> str:
