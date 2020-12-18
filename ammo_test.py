@@ -72,10 +72,24 @@ def test_render_ammo():
         '___________________________________________'
     ]
 
-# .split() makes it easier to read.
+
 def test_render_ammos():
-    res = render_ammos(EXPECTED_FIXTURE[0:1]).split()
-    assert res == ['1,','USC','Ammo','Remanufactured','9mm','124','Grain','FMJ','(1000','Round)','1000', '$649.99', 'This', 'order','has', '1000', 'rounds.', 'That', 'is', 'a', 'total', 'of', '20', 'boxes', 'of', '50', 'cartridges.', 'Your', 'total', 'investment', 'on', 'this', 'item', 'after', 'is', '$703.61', 'If', 'we', 'divide', 'your', 'investment(703.61)', 'by', 'the', 'number', 'of', 'boxes(20)', '...', 'We', 'get', '$35.18/Box', 'of', 'Ammo', 'That', 'is', 'a', 'SGP', 'of', '$24.77', 'per', '50', 'Round', 'box.', '$0.50', 'SGP', 'per', 'Round.', 'Our', 'Total', 'SGP', 'for', 'this', 'item', 'would', 'be', '$495.39', '___________________________________________']
+    res = render_ammos(EXPECTED_FIXTURE[0:1]).split("\n")
+    assert res == [
+        '1, USC Ammo Remanufactured 9mm 124 Grain FMJ (1000 Round)',
+        '1000',
+        '$649.99',
+        'This order has 1000 rounds.',
+        'That is a total of 20 boxes of 50 cartridges.',
+        'Your total investment on this item after is $703.61',
+        'If we divide your investment(703.61) by the number of boxes(20)',
+        '...',
+        'We get $35.18/Box of Ammo',
+        'That is a SGP of $24.77 per 50 Round box.',
+        '$0.50 SGP per Round.',
+        'Our Total SGP for this item would be $495.39',
+        '___________________________________________'
+    ]
 
 
 EXPECTED_FIXTURE = [
