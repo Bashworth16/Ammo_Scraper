@@ -1,9 +1,9 @@
 from collections import namedtuple
 from decimal import Decimal
 from typing import List
+
 import requests
 from bs4 import BeautifulSoup
-
 
 MAX_INVESTMENT = 1000
 SALE_PRICE_9MM = Decimal('59.95')
@@ -17,8 +17,7 @@ def main():
     print(rendered)
 
 
-def fetch_html(x) -> bytes:
-    use_fixture = x
+def fetch_html(use_fixture) -> bytes:
     if use_fixture:
         with open("fixtures/9mm.html", "br") as f:
             return f.read()
@@ -28,7 +27,7 @@ def fetch_html(x) -> bytes:
         return response.content
 
 
-Ammo = namedtuple('Ammos', 'title rounds price')
+Ammo = namedtuple('Ammo', 'title rounds price')
 
 
 def parse_ammos(h: bytes) -> List[Ammo]:
